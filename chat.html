@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Team Chat System</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Orbitron', sans-serif;
+      background-image: url('bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      filter: brightness(1.05) contrast(1.1) saturate(1.1);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #f5f5f5;
+      transition: filter 0.5s ease-in-out;
+    }
+
+    .chat-container {
+      width: 350px;
+      height: 360px;
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #000;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .chat-header {
+      background: #1f1f1f;
+      padding: 15px;
+      color: #d68e6a;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 2px solid #d57c50;
+      text-shadow: 0 0 5px #000;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #151515;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .chat-messages .msg {
+      margin: 10px 0;
+      padding: 10px 14px;
+      background: #262626;
+      border-left: 4px solid #d57c50;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 8px;
+      background: #1f1f1f;
+      border-top: 2px solid #d57c50;
+    }
+
+    .input-area input, .input-area select {
+      padding: 8px;
+      margin-right: 5px;
+      border-radius: 5px;
+      border: none;
+      background: #333;
+      color: #fff;
+    }
+
+    .input-area input {
+      flex: 1;
+    }
+
+    .input-area button {
+      background: #d57c50;
+      color: #1f1f1f;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .input-area button:hover {
+      background: #ff967a;
+    }
+
+    .player-switch {
+      padding: 8px 12px;
+      background: #1f1f1f;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 2px solid #d57c50;
+    }
+
+    .player-switch select {
+      padding: 5px 10px;
+      background: #333;
+      color: #ffcab0;
+      border-radius: 5px;
+    }
+
+    .player-switch label {
+      color: #d57c50;
+      font-weight: bold;
+    }
+
+    .player-switch button {
+      background-color: #d57c50;
+      color: #1f1f1f;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    .player-switch button:hover {
+      background-color: #ff967a;
+    }
+
+    .Team {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: #fdf6f0;
+      font-size: 14px;
+    }
+
+    .emoji-picker {
+  position: absolute;
+  bottom: 105px;
+  right: 25px;
+  z-index: 999;
+  max-width: 250px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: #1f1f1f;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">Team Chat</div>
+  <div class="chat-messages" id="messages"></div>
+
+  <div class="player-switch">
+    <label for="playerSwitch">Current Player:</label>
+    <select id="playerSwitch">
+      <option value="1">Player 1</option>
+      <option value="2">Player 2</option>
+      <option value="3">Player 3</option>
+      <option value="4">Player 4</option>
+    </select>
+    <button id="micToggleBtn" onclick="toggleMic()">🎤 Mic: Off</button>
+    <button id="speakerToggleBtn" onclick="toggleSpeaker()">🔈 Speaker: On</button>
+  </div>
+  <div id="emojiPicker" class="emoji-picker" style="display:none; background:#1f1f1f; border-radius:6px; padding:10px; box-shadow:0 0 10px #000;"></div>
+
+
+  <div class="input-area">
+    <input type="text" id="chatInput" placeholder="Type your message..." required>
+    <button onclick="toggleEmojiPicker()">😊</button>
+    <select id="targetSelect">
+      <option value="player">To Player</option>
+      <option value="team">To Team</option>
+    </select>
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<div class="Team">
+  <h2>Team Members</h2>
+  <p style="color:yellow">Vivek </p>
+  <p style="color:orange">Yashwanth</p>
+  <p style="color:blue">Naveen</p>
+  <p style="color: green;">Sai</p>
+</div>
+
+<div id="emojiPicker" class="emoji-picker" style="display:none;"></div>
+
+<script>
+// Emoji List
+const emojiList = [
+  "😀", "😂", "😍", "😎", "😢", "😡", "👍", "👎", "👏", "🙏",
+  "💪", "🔥", "💯", "🎮", "🏆", "❤️", "💔", "🤣", "🤔", "🤯",
+  "👻", "💀", "😈", "🍕", "🍔", "🍟", "🚀", "🎯", "😇", "😭"
+];
+
+// Toggle emoji picker
+function toggleEmojiPicker() {
+  const picker = document.getElementById("emojiPicker");
+  if (picker.style.display === "none") {
+    picker.innerHTML = emojiList.map(emoji =>
+      `<span style="font-size:22px; cursor:pointer; padding:4px;" onclick="insertEmoji('${emoji}')">${emoji}</span>`
+    ).join("");
+    picker.style.display = "block";
+  } else {
+    picker.style.display = "none";
+  }
+}
+
+// Insert emoji into input field
+function insertEmoji(emoji) {
+  const input = document.getElementById("chatInput");
+  input.value += emoji;
+  input.focus();
+}
+
+
+  function generateRandomKey(length) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let key = "";
+    for (let i = 0; i < length; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  }
+
+ function vigenereEncrypt(text, key) {
+  text = text.toUpperCase();
+  key = key.toUpperCase();
+  let result = "";
+  let j = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char.match(/[A-Z]/)) {
+      const k = key[j % key.length];
+      const encrypted = String.fromCharCode((char.charCodeAt(0) + k.charCodeAt(0) - 130) % 26 + 65);
+      result += encrypted;
+      j++;
+    } else {
+      // Skip encryption for emojis, symbols, spaces
+      result += char;
+    }
+  }
+
+  return result;
+}
+
+
+
+const teluguGameCalls = [
+  "munduku raa",         // come forward
+  "venakala paduko",     // fall back / go back
+  "cover ivvu",          // give cover
+  "grenade vesthanu",    // throwing grenade
+  "loot teesuko",        // take the loot
+  "sniper choodandi",    // watch for snipers
+  "health kit ivvu",     // give health kit
+  "rush cheddha",        // let's rush
+  "chudandi ekkada unnaru", // look where they are
+  "scope pettu",         // aim/scope in
+  "naku ammo ivvu",      // give me ammo
+  "zone loki ra",        // come into the zone
+  "vehicle dorikindi",   // got a vehicle
+  "flank cheyyi",        // flank them
+  "ready ga undi",       // be ready
+  "chill bro",           // relax bro (mixed slang)
+  "game start cheddha",  // let's start the game
+  "team andaru ikkadiki randi" // team, everyone come here
+];
+function checkGameCallOrSlang(word) {
+  if (teluguGameCalls.includes(word.toLowerCase())) return "🎮 Valid Game Call";
+  return "✅ Normal";
+}
+function filterEnglishAndTeluguBadWords(text) {
+  const allBadWords = [
+    // English
+    "noob", "trash", "bot", "ez", "loser", "idiot", "uninstall", "fool", "clown", "get rekt", "fuck", "shit",
+    // Telugu in English script
+    "kukka", "nayala", "dengutha", "erripuka", "lanja kodaka", "pichhoda", "kukka pilla", "donga",
+    "fool ra nuvvu", "neeku brain ledu", "noob ra nuvvu", "veediki brain ledu", "neeku ardham kaledha",
+    "chod ra", "scene ledhu", "neeku aim ledu", "nuvvu bot ra", "pichodu"
+  ];
+
+  return text.split(/\s+/).map(word => {
+    const lowerWord = word.toLowerCase().replace(/[^\w@]+/g, ''); // clean punctuations
+    const match = allBadWords.find(bad => lowerWord.includes(bad));
+    return match ? '*'.repeat(word.length) : word;
+  }).join(" ");
+}
+
+
+
+
+  function speakMessage(message) {
+    if (!speakerActive) return;
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance(message);
+    synth.speak(utter);
+  }
+
+  function saveMessageToDB(playerId, playerName, encryptedMessage, encryptionKey) {
+    fetch("save_message.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `player_id=${playerId}&player_name=${encodeURIComponent(playerName)}&encrypted_message=${encodeURIComponent(encryptedMessage)}&encryption_key=${encryptionKey}`
+    })
+    .then(res => res.text())
+    .then(text => console.log('Saved:', text))
+    .catch(err => console.error('Fetch error:', err));
+  }
+
+ function sendMessage() {
+  const input = document.getElementById("chatInput");
+  const rawMessage = input.value.trim();
+  const filteredMessage = filterEnglishAndTeluguBadWords(rawMessage);
+
+  const player = document.getElementById("playerSwitch").value;
+  const target = document.getElementById("targetSelect").value;
+  const msgContainer = document.getElementById("messages");
+
+  if (!filteredMessage) return;
+
+  const dynamicKey = generateRandomKey(filteredMessage.length);
+  const encryptedMessage = vigenereEncrypt(filteredMessage, dynamicKey);
+  const sender = "Player " + player;
+
+  const newMsg = document.createElement("div");
+  newMsg.className = `msg player${player}`;
+  newMsg.innerHTML = `<b>${sender} to ${target === "team" ? "Team" : "Player"}:</b><br>${filteredMessage}`;
+  msgContainer.appendChild(newMsg);
+
+  saveMessageToDB(player, sender, encryptedMessage, dynamicKey);
+  speakMessage(`${target === "team" ? "Team" : "Player"} received: ${filteredMessage}`);
+  input.value = "";
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+}
+
+  function loadMessages() {
+    fetch("get_messages.php")
+      .then(res => res.json())
+      .then(data => {
+        const msgContainer = document.getElementById("messages");
+        msgContainer.innerHTML = "";
+        data.forEach(msg => {
+          const div = document.createElement("div");
+          div.className = "msg";
+          div.innerHTML = `<b>${msg.player_name}:</b><br>${msg.decrypted}`;
+          msgContainer.appendChild(div);
+        });
+      });
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+
+  let micActive = false;
+  let speakerActive = true;
+
+  function toggleMic() {
+    const micBtn = document.getElementById("micToggleBtn");
+    if (!micActive) {
+      recognition.start();
+      micActive = true;
+      micBtn.textContent = "🎤 Mic: On";
+      micBtn.style.backgroundColor = "#ff967a";
+    } else {
+      recognition.stop();
+      micActive = false;
+      micBtn.textContent = "🎤 Mic: Off";
+      micBtn.style.backgroundColor = "";
+    }
+  }
+
+  function toggleSpeaker() {
+    const speakerBtn = document.getElementById("speakerToggleBtn");
+    speakerActive = !speakerActive;
+    speakerBtn.textContent = speakerActive ? "🔈 Speaker: On" : "🔇 Speaker: Off";
+    speakerBtn.style.backgroundColor = speakerActive ? "#ff967a" : "#555";
+  }
+
+  recognition.onend = () => {
+    if (micActive) {
+      micActive = false;
+      document.getElementById("micToggleBtn").textContent = "🎤 Mic: Off";
+      document.getElementById("micToggleBtn").style.backgroundColor = "";
+    }
+  };
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("chatInput").value = transcript;
+  };
+
+  setInterval(loadMessages, 2000);
+</script>
+</body>
+</html>

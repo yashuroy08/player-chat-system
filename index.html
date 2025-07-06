@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Mobile - Lobby</title>
+    <style>
+        :root {
+            --pubg-red: #e53935;
+            --pubg-dark: #1a1a1a;
+            --pubg-gold: #ffd700;
+            --pubg-blue: #2196f3;
+            --pubg-light: #f5f5f5;
+            --pubg-green: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--pubg-dark);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 768px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-bottom: 2px solid var(--pubg-red);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            position: relative;
+        }
+
+        .avatar img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--pubg-gold);
+        }
+
+        .level {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background-color: var(--pubg-red);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            border: 2px solid var(--pubg-dark);
+        }
+
+        .player-stats h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .rank {
+            color: var(--pubg-gold);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .currency {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .uc {
+            color: var(--pubg-blue);
+        }
+
+        .bp {
+            color: var(--pubg-gold);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--pubg-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #c62828;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--pubg-red), #c62828);
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-cancel {
+            background-color: #666;
+            margin-top: 20px;
+        }
+
+        .game-lobby {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .game-mode {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .mode.active {
+            opacity: 1;
+            color: var(--pubg-red);
+        }
+
+        .mode i {
+            font-size: 24px;
+        }
+
+        .mode span {
+            font-size: 12px;
+        }
+
+        .map-selector {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+            width: 100%;
+            scrollbar-width: none;
+        }
+
+        .map-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .map {
+            min-width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .map.active {
+            opacity: 1;
+            box-shadow: 0 0 15px var(--pubg-red);
+        }
+
+        .map img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .map h3 {
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .matchmaking {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .matchmaking-options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .matchmaking-option {
+            position: relative;
+            margin: 5px;
+        }
+
+        .matchmaking-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .matchmaking-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+        }
+
+        .radio-custom {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--pubg-red);
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: transparent;
+        }
+
+        .radio-custom::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--pubg-red);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.2s ease;
+        }
+
+        .matchmaking-option input[type="radio"]:checked ~ label .radio-custom::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .matchmaking-option input[type="radio"]:focus ~ label .radio-custom {
+            box-shadow: 0 0 5px var(--pubg-red);
+        }
+
+        .inventory-preview {
+            position: absolute;
+            right: 20px;
+            bottom: 80px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--pubg-red);
+            width: 200px;
+        }
+
+        .inventory-preview h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--pubg-gold);
+            text-align: center;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .item img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid #333;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--pubg-red);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--pubg-dark);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 300px;
+            border: 2px solid var(--pubg-red);
+        }
+
+        .loading-animation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .circle {
+            width: 15px;
+            height: 15px;
+            background-color: var(--pubg-red);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .circle:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .circle:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .players-found {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .player-slot {
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .game-mode {
+                gap: 10px;
+            }
+            
+            .map {
+                min-width: 150px;
+            }
+            
+            .inventory-preview {
+                width: 150px;
+                right: 10px;
+            }
+            
+            .matchmaking-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <form action="chat.html" method="GET" id="gameForm">
+        <input type="hidden" name="pname" value="PlayerName"> <!-- Add player name -->
+        <div class="container">
+            <header class="game-header">
+                <div class="player-info">
+                    <div class="avatar">
+                        <img src="icon.jpeg" alt="Player Avatar">
+                        <span class="level">25</span>
+                    </div>
+                    <div class="player-stats">
+                        <h2>PlayerName</h2>
+                        <div class="rank">
+                            <i class="fas fa-crown"></i> Platinum III
+                        </div>
+                        <div class="currency">
+                            <span class="uc"><i class="fas fa-coins"></i> 2,450</span>
+                            <span class="bp"><i class="fas fa-star"></i> 5,200</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-buttons">
+                    <button type="button" class="btn btn-small"><i class="fas fa-cog"></i></button>
+                    <button type="button" class="btn btn-small"><i class="fas fa-envelope"></i></button>
+                    <button type="button" class="btn btn-small"><i class="fas fa-users"></i></button>
+                </div>
+            </header>
+
+            <main class="game-lobby">
+                <div class="game-mode">
+                    <div class="mode active" data-mode="classic">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>Classic</span>
+                    </div>
+                    <div class="mode" data-mode="arcade">
+                        <i class="fas fa-robot"></i>
+                        <span>Arcade</span>
+                    </div>
+                    <div class="mode" data-mode="arena">
+                        <i class="fas fa-trophy"></i>
+                        <span>Arena</span>
+                    </div>
+                    <div class="mode" data-mode="shop">
+                        <i class="fas fa-store"></i>
+                        <span>Shop</span>
+                    </div>
+                </div>
+
+                <div class="map-selector">
+                    <div class="map active" data-map="erangel">
+                        <img src="erangel.jpeg" alt="Erangel">
+                        <h3>Erangel</h3>
+                        <input type="radio" id="erangel" name="map" value="erangel" checked>
+                        <label for="erangel">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">Erangel</span>
+                        </label>
+                    </div>
+                    <div class="map" data-map="miramar">
+                        <img src="miramar.jpeg" alt="Miramar">
+                        <h3>Miramar</h3>
+                        <input type="radio" id="miramar" name="map" value="miramar">
+                        <label for="miramar">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">Miramar</span>
+                        </label>
+                    </div>
+                    <div class="map" data-map="sanhok">
+                        <img src="sanhok.jpeg" alt="Sanhok">
+                        <h3>Sanhok</h3>
+                        <input type="radio" id="sanhok" name="map" value="sanhok">
+                        <label for="sanhok">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">Sanhok</span>
+                        </label>
+                    </div>
+                    <div class="map" data-map="vikendi">
+                        <img src="vikendi.jpeg" alt="Vikendi">
+                        <h3>Vikendi</h3>
+                        <input type="radio" id="vikendi" name="map" value="vikendi">
+                        <label for="vikendi">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">Vikendi</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="matchmaking">
+                    <button type="button" class="btn btn-start" id="startGame">
+                        <i class="fas fa-play"></i> START
+                    </button>
+                    <div class="matchmaking-options">
+                        <div class="matchmaking-option">
+                            <input type="radio" id="solo" name="matchmaking-type" value="solo" checked>
+                            <label for="solo">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Solo</span>
+                            </label>
+                        </div>
+                        <div class="matchmaking-option">
+                            <input type="radio" id="duo" name="matchmaking-type" value="duo">
+                            <label for="duo">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Duo</span>
+                            </label>
+                        </div>
+                        <div class="matchmaking-option">
+                            <input type="radio" id="squad" name="matchmaking-type" value="squad">
+                            <label for="squad">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Squad</span>
+                            </label>
+                        </div>
+                        <div class="matchmaking-option">
+                            <input type="radio" id="auto-matching" name="matchmaking-type" value="auto">
+                            <label for="auto-matching">
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">Auto Matching</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <nav class="bottom-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Lobby</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-tshirt"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-trophy"></i>
+                    <span>Rank</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-tasks"></i>
+                    <span>Missions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-store"></i>
+                    <span>Shop</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="modal" id="matchmakingModal">
+            <div class="modal-content">
+                <h2>Matchmaking</h2>
+                <div class="loading-animation">
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                    <div class="circle"></div>
+                </div>
+                <p>Searching for players...</p>
+                <div class="players-found">
+                    <div class="player-slot"><i class="fas fa-user"></i></div>
+                    <div class="player-slot"><i class="fas fa-user"></i></div>
+                    <div class="player-slot"><i class="fas fa-user"></i></div>
+                    <div class="player-slot"><i class="fas fa-user"></i></div>
+                </div>
+                <button type="button" class="btn btn-cancel" id="cancelMatchmaking">Cancel</button>
+            </div>
+        </div>
+    </form>
+    <script>
+        const modes = document.querySelectorAll('.mode');
+        const maps = document.querySelectorAll('.map');
+        const startButton = document.getElementById('startGame');
+        const cancelButton = document.getElementById('cancelMatchmaking');
+        const matchmakingModal = document.getElementById('matchmakingModal');
+        const gameForm = document.getElementById('gameForm');
+
+        modes.forEach(mode => {
+            mode.addEventListener('click', () => {
+                modes.forEach(m => m.classList.remove('active'));
+                mode.classList.add('active');
+            });
+        });
+
+        maps.forEach(map => {
+            map.addEventListener('click', () => {
+                maps.forEach(m => m.classList.remove('active'));
+                map.classList.add('active');
+                const mapInput = map.querySelector('input[type="radio"]');
+                if (mapInput) {
+                    mapInput.checked = true;
+                }
+            });
+        });
+
+        startButton.addEventListener('click', () => {
+            matchmakingModal.classList.add('active');
+            setTimeout(() => {
+                gameForm.submit();
+            }, 2000);
+        });
+
+        cancelButton.addEventListener('click', () => {
+            matchmakingModal.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
